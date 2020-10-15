@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"nicheanalysis/dal"
-	amazonsvc "nicheanalysis/gen/amazon_svc"
-	"nicheanalysis/scrapers"
+	"nicheanal.com/dal"
+	amazonsvc "nicheanal.com/gen/amazon_svc"
+	"nicheanal.com/scrapers"
 )
 
 // AmazonScrape scraps amazon site and save to database

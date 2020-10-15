@@ -1,7 +1,7 @@
 package dal
 
 import (
-	amazonsvc "nicheanalysis/gen/amazon_svc"
+	amazonsvc "nicheanal.com/gen/amazon_svc"
 )
 
 // AmazonSave create new amazon scrape result searched by keyword

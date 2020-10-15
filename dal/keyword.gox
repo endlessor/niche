@@ -3,7 +3,7 @@ package dal
 import (
 	"time"
 
-	spkeywordresearchsvc "nicheanalysis/gen/sp_keyword_research_svc"
+	spkeywordresearchsvc "nicheanal.com/gen/sp_keyword_research_svc"
 )
 
 // KeywordModel for searched keyword list model

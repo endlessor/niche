@@ -13,7 +13,8 @@ import (
 
 var db *gorm.DB
 
-func init() {
+// LoadDB loads db initails
+func LoadDB() {
 	var err error
 	conn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s",
 		config.Cfg.DBHOST, config.Cfg.DBPORT, config.Cfg.DBUSER, config.Cfg.DBNAME, config.Cfg.DBPASS)
@@ -27,5 +28,6 @@ func init() {
 	}
 	db.AutoMigrate(
 		&Preset{},
+		&ProductDiscovery{},
 	)
 }

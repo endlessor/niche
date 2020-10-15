@@ -7,9 +7,9 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	keywordresearchsvc "nicheanalysis/gen/keyword_research_svc"
-	productdiscoverysvc "nicheanalysis/gen/product_discovery_svc"
-	spkeywordresearchsvc "nicheanalysis/gen/sp_keyword_research_svc"
+	keywordresearchsvc "nicheanal.com/gen/keyword_research_svc"
+	productdiscoverysvc "nicheanal.com/gen/product_discovery_svc"
+	spkeywordresearchsvc "nicheanal.com/gen/sp_keyword_research_svc"
 	"os"
 	"time"
 )

@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"nicheanalysis/dal"
-	keywordresearchsvc "nicheanalysis/gen/keyword_research_svc"
-	spkeywordresearchsvc "nicheanalysis/gen/sp_keyword_research_svc"
-	"nicheanalysis/scrapers"
+	"nicheanal.com/dal"
+	keywordresearchsvc "nicheanal.com/gen/keyword_research_svc"
+	spkeywordresearchsvc "nicheanal.com/gen/sp_keyword_research_svc"
+	"nicheanal.com/scrapers"
 )
 
 // KeywordResearchSave scrape keyword research page and store to db

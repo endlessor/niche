@@ -5,7 +5,7 @@ import (
 
 	"github.com/lib/pq"
 
-	keywordresearchsvc "nicheanalysis/gen/keyword_research_svc"
+	keywordresearchsvc "nicheanal.com/gen/keyword_research_svc"
 )
 
 // KeywordData is database model for keyword research result

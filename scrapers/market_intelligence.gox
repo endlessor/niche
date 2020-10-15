@@ -8,8 +8,8 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"nicheanalysis/dal"
-	marketintelligencesvc "nicheanalysis/gen/market_intelligence_svc"
+	"nicheanal.com/dal"
+	marketintelligencesvc "nicheanal.com/gen/market_intelligence_svc"
 	"os"
 	"time"
 )

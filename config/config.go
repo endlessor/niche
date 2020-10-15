@@ -35,9 +35,8 @@ type Logger struct {
 }
 
 // LoadConfig loads config info
-func LoadConfig() {
-	configFile := "config/config.json"
-	file, errOpenFile := os.Open(configFile)
+func LoadConfig(path string) {
+	file, errOpenFile := os.Open(path)
 	if errOpenFile != nil {
 		log.Fatal(errOpenFile)
 	}

@@ -9,33 +9,32 @@ type Preset struct {
 	// Name of the preset
 	Preset string
 	// Used to set the next revenue range for the preset
-	RevenueRangeMove   int64
-	AveragePrice       string // minmax type
-	AverageRevenue     string // minmax type
-	AverageReviewCount string // minmax type
-	AverageSales       string // minmax type
-	AmazonFulfillment  string // minmax type
-	AverageNetProfit   string // minmax type
-	FbaFulfillment     string // minmax type
-	FbmFulfillment     string // minmax type
-	PriceChange        string // minmax type
-	ProfitMargin       string // minmax type
-	ReviewChange       string // minmax type
-	ReviewRate         string // minmax type
-	ReviewRating       string // minmax type
-	SearchVolumeBroad  string // minmax type
-	SearchVolumeExact  string // minmax type
-	SalesPattern       string
-	RootCategories     pq.StringArray `gorm:"type:text[]"`
-	SalesChange        string         // minmax type
-	SalesToReviews     string         // minmax type
-	SalesYearOver      string         // minmax type
-	ShipSize           string
-	BestSalesPeriod    string
-	Marketplace        string
-	Email              string
-	ObjectID           string
-	ContinuationToken  string
+	RevenueRangeMove     int64
+	AveragePrice         string // minmax type
+	AverageRevenue       string // minmax type
+	AverageReviewCount   string // minmax type
+	AverageSales         string // minmax type
+	AmazonFulfillment    string // minmax type
+	AverageNetProfit     string // minmax type
+	FbaFulfillment       string // minmax type
+	FbmFulfillment       string // minmax type
+	PriceChange          string // minmax type
+	ProfitMargin         string // minmax type
+	ReviewChange         string // minmax type
+	ReviewRate           string // minmax type
+	ReviewRating         string // minmax type
+	SearchVolumeEstimate string // minmax type
+	SalesPattern         string
+	RootCategories       pq.StringArray `gorm:"type:text[]"`
+	SalesChange          string         // minmax type
+	SalesToReviews       string         // minmax type
+	SalesYearOver        string         // minmax type
+	ShipSize             string
+	BestSalesPeriod      string
+	Marketplace          string
+	Email                string
+	ObjectID             string
+	ContinuationToken    string
 }
 
 // LoadData set all data of presetdata db model
@@ -55,8 +54,7 @@ func (pdb *Preset) LoadData(p AppPreset) {
 	pdb.ReviewChange = ToString(p.ReviewChange)
 	pdb.ReviewRate = ToString(p.ReviewRate)
 	pdb.ReviewRating = ToString(p.ReviewRating)
-	pdb.SearchVolumeBroad = ToString(p.SearchVolumeBroad)
-	pdb.SearchVolumeExact = ToString(p.SearchVolumeExact)
+	pdb.SearchVolumeEstimate = ToString(p.SearchVolumeEstimate)
 	pdb.SalesChange = ToString(p.SalesChange)
 	pdb.SalesToReviews = ToString(p.SalesToReviews)
 	pdb.SalesYearOver = ToString(p.SalesYearOver)
@@ -89,8 +87,7 @@ func (pdb *Preset) ExportData() *AppPreset {
 	preset.ReviewChange = ToStructMinMax(pdb.ReviewChange)
 	preset.ReviewRate = ToStructMinMax(pdb.ReviewRate)
 	preset.ReviewRating = ToStructMinMax(pdb.ReviewRating)
-	preset.SearchVolumeBroad = ToStructMinMax(pdb.SearchVolumeBroad)
-	preset.SearchVolumeExact = ToStructMinMax(pdb.SearchVolumeExact)
+	preset.SearchVolumeEstimate = ToStructMinMax(pdb.SearchVolumeEstimate)
 	preset.SalesChange = ToStructMinMax(pdb.SalesChange)
 	preset.SalesToReviews = ToStructMinMax(pdb.SalesToReviews)
 	preset.SalesYearOver = ToStructMinMax(pdb.SalesYearOver)

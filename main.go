@@ -5,13 +5,16 @@ import (
 	"net/http"
 	"time"
 
+	"nicheanal.com/dal"
+
 	"nicheanal.com/config"
 	"nicheanal.com/pkg/logger"
 	r "nicheanal.com/router"
 )
 
 func main() {
-	config.LoadConfig()
+	config.LoadConfig("config/config.json")
+	dal.LoadDB()
 	logger.Init()
 
 	router := r.GetRouter()
