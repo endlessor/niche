@@ -1,0 +1,56 @@
+package dal
+
+import (
+	"time"
+
+	spkeywordresearchsvc "nicheanalysis/gen/sp_keyword_research_svc"
+)
+
+// KeywordModel for searched keyword list model
+type KeywordModel struct {
+	Keyword string
+	Date    string
+}
+
+// RecentSearched checks if the keyword was searched within that month
+func RecentSearched(kw string) bool {
+	now := time.Now().Format("2006-01-02")
+	df := now[0:7]
+	kws := []KeywordModel{}
+	err := db.Where("keyword=? AND date LIKE ?", kw, df+"%").Find(&kws).Error
+	if err != nil {
+		return false
+	}
+	return len(kws) > 0
+}
+
+// SaveKeyword stores the recently searched keyword to db
+func SaveKeyword(kw string) error {
+	now := time.Now().Format("2006-01-02")
+	err := db.Where("keyword=?", kw).Delete(&KeywordModel{}).Error
+	if err != nil {
+		return err
+	}
+	kd := &KeywordModel{
+		Keyword: kw,
+		Date:    now,
+	}
+	return db.Create(&kd).Error
+}
+
+// GetAllKeywords get all keywords
+func GetAllKeywords() (spkeywordresearchsvc.ViralSpkeywordCollection, error) {
+	res := spkeywordresearchsvc.ViralSpkeywordCollection{}
+	kws := []KeywordModel{}
+	err := db.Find(&kws).Error
+	if err != nil {
+		return res, err
+	}
+	for _, v := range kws {
+		k := v.Keyword
+		res = append(res, &spkeywordresearchsvc.ViralSpkeyword{
+			Keyword: &k,
+		})
+	}
+	return res, nil
+}

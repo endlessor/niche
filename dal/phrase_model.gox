@@ -1,0 +1,41 @@
+package dal
+
+import (
+	"time"
+)
+
+// PhraseModel for phrase table
+type PhraseModel struct {
+	Phrase string
+	Date   string
+}
+
+// SavePhraseModel save new phrase with month date
+func SavePhraseModel(phrase string) error {
+	now := time.Now().Format("2006-01-02")
+	now = now[0:7]
+	ps := &PhraseModel{
+		Phrase: phrase,
+		Date:   now,
+	}
+	err := db.Where("phrase=?", phrase).Delete(&PhraseModel{}).Error
+	if err != nil {
+		return err
+	}
+	return db.Create(&ps).Error
+}
+
+// CheckPhraseExist checks if needs to scrape new phrase
+func CheckPhraseExist(phrase string) bool {
+	now := time.Now().Format("2006-01-02")
+	now = now[0:7]
+	as := &PhraseModel{}
+	err := db.Where("phrase=? AND date=?", phrase, now).First(&as).Error
+	if err != nil {
+		return false
+	}
+	if as != nil && as.Phrase != "" {
+		return true
+	}
+	return false
+}

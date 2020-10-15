@@ -1,0 +1,131 @@
+package dal
+
+import (
+	"encoding/json"
+	productdiscoverysvc "nicheanalysis/gen/product_discovery_svc"
+
+	"github.com/lib/pq"
+)
+
+// PresetData is the result type of the productDiscovery service
+type PresetData struct {
+	// Name of the preset
+	Preset string
+	// Used to set the next revenue range for the preset
+	RevenueRangeMove   int64
+	AveragePrice       string // minmax type
+	AverageRevenue     string // minmax type
+	AverageReviewCount string // minmax type
+	AverageSales       string // minmax type
+	AmazonFulfillment  string // minmax type
+	AverageNetProfit   string // minmax type
+	FbaFulfillment     string // minmax type
+	FbmFulfillment     string // minmax type
+	PriceChange        string // minmax type
+	ProfitMargin       string // minmax type
+	ReviewChange       string // minmax type
+	ReviewRate         string // minmax type
+	ReviewRating       string // minmax type
+	SearchVolumeBroad  string // minmax type
+	SearchVolumeExact  string // minmax type
+	SalesPattern       string
+	RootCategories     pq.StringArray `gorm:"type:text[]"`
+	SalesChange        string         // minmax type
+	SalesToReviews     string         // minmax type
+	SalesYearOver      string         // minmax type
+	ShipSize           string
+	BestSalesPeriod    string
+	Marketplace        string
+	Email              string
+	ObjectID           string
+	ContinuationToken  string
+}
+
+// SavePhraseData save phrase data
+func SavePhraseData(p *productdiscoverysvc.ApplicationViralPhraseData) error {
+	err := db.Where("phrase=? AND preset=? AND preset_revenue=?", p.Phrase, p.Preset, p.PresetRevenue).Delete(&productdiscoverysvc.ApplicationViralPhraseData{}).Error
+	if err != nil {
+		return err
+	}
+	return db.Create(&p).Error
+}
+
+// ListDiscoveryData returns all phraseData from product discovery with preset
+func ListDiscoveryData(preset string) (productdiscoverysvc.ViralDiscoverydataCollection, error) {
+	var vdd productdiscoverysvc.ViralDiscoverydataCollection
+	pds := []*productdiscoverysvc.ApplicationViralPhraseData{}
+
+	err := db.Where("preset=?", preset).Find(&pds).Error
+	if err != nil {
+		return vdd, err
+	}
+	t := int64(len(pds))
+	result := &productdiscoverysvc.ViralDiscoverydata{
+		Data:  pds,
+		Total: &t,
+	}
+	vdd = append(vdd, result)
+	return vdd, nil
+}
+
+// CreatePreset save new preset data to db
+func CreatePreset(p *productdiscoverysvc.ApplicationViralPresetPayload) error {
+	preset := &productdiscoverysvc.ViralPresetmedia{}
+	b, _ := json.Marshal(p)
+	err := json.Unmarshal(b, &preset)
+	if err != nil {
+		return err
+	}
+	pdb := &PresetData{}
+	pdb.LoadData(preset)
+	err = db.Where("preset=?", preset.Preset).Delete(&PresetData{}).Error
+	if err != nil {
+		return err
+	}
+	return db.Create(&pdb).Error
+}
+
+// GetPreset get one presetData with preset string
+func GetPreset(p string) (*productdiscoverysvc.ViralPresetmedia, error) {
+	pdb := PresetData{}
+	err := db.Where("preset=?", p).First(&pdb).Error
+	if err != nil {
+		return nil, err
+	}
+	return pdb.ExportData(), nil
+}
+
+// ListPreset returns all presetData
+func ListPreset() (productdiscoverysvc.ViralPresetmediaCollection, error) {
+	presets := productdiscoverysvc.ViralPresetmediaCollection{}
+	pdbs := []PresetData{}
+	err := db.Find(&pdbs).Error
+	if err != nil {
+		return presets, err
+	}
+	for _, v := range pdbs {
+		presets = append(presets, v.ExportData())
+	}
+	return presets, nil
+}
+
+// RemovePreset remove one preset data
+func RemovePreset(p string) error {
+	return db.Where("preset=?", p).Delete(&PresetData{}).Error
+}
+
+// ChangePresetName update preset data with new preset name
+func ChangePresetName(old, news string) error {
+	pdb := PresetData{}
+	err := db.Where("preset=?", old).First(&pdb).Error
+	if err != nil {
+		return err
+	}
+	pdb.Preset = news
+	return db.Save(&pdb).Error
+}
+
+// RemoveAllPreset removes all preset data from db
+func RemoveAllPreset() error {
+	return db.Delete(&PresetData{}).Error
+}

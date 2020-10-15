@@ -1,0 +1,22 @@
+package controller
+
+import (
+	"nicheanalysis/dal"
+	amazonsvc "nicheanalysis/gen/amazon_svc"
+	"nicheanalysis/scrapers"
+)
+
+// AmazonScrape scraps amazon site and save to database
+func AmazonScrape(keyword string) (*amazonsvc.ViralAmmedia, error) {
+	searchCount := scrapers.AmazonSearchResults(keyword)
+	res := &amazonsvc.ViralAmmedia{
+		SearchCount: &searchCount,
+		Keyword:     &keyword,
+	}
+	return res, dal.AmazonSave(res)
+}
+
+// AmazonShow get amazon scraping result data
+func AmazonShow(keyword string) (*amazonsvc.ViralAmmedia, error) {
+	return dal.AmazonShow(keyword)
+}

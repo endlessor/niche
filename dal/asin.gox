@@ -1,0 +1,41 @@
+package dal
+
+import (
+	"time"
+)
+
+// AsinModel for asin table
+type AsinModel struct {
+	Asin string
+	Date string
+}
+
+// SaveAsin save new asin with month date
+func SaveAsin(asin string) error {
+	now := time.Now().Format("2006-01-02")
+	now = now[0:7]
+	as := &AsinModel{
+		Asin: asin,
+		Date: now,
+	}
+	err := db.Where("asin=?", asin).Delete(&AsinModel{}).Error
+	if err != nil {
+		return err
+	}
+	return db.Create(&as).Error
+}
+
+// CheckAsinExist checks if needs to scrape new asin
+func CheckAsinExist(asin string) bool {
+	now := time.Now().Format("2006-01-02")
+	now = now[0:7]
+	as := &AsinModel{}
+	err := db.Where("asin=? AND date=?", asin, now).First(&as).Error
+	if err != nil {
+		return false
+	}
+	if as != nil && as.Asin != "" {
+		return true
+	}
+	return false
+}

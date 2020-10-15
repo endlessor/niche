@@ -1,0 +1,21 @@
+package dal
+
+import (
+	amazonsvc "nicheanalysis/gen/amazon_svc"
+)
+
+// AmazonSave create new amazon scrape result searched by keyword
+func AmazonSave(res *amazonsvc.ViralAmmedia) error {
+	err := db.Where("keyword=?", res.Keyword).Delete(&amazonsvc.ViralAmmedia{}).Error
+	if err != nil {
+		return err
+	}
+	return db.Create(&res).Error
+}
+
+// AmazonShow gets one record from amazon scrape result by keyword
+func AmazonShow(keyword string) (*amazonsvc.ViralAmmedia, error) {
+	res := &amazonsvc.ViralAmmedia{}
+	err := db.Where("keyword=?", keyword).First(&res).Error
+	return res, err
+}

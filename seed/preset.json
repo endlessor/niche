@@ -1,0 +1,136 @@
+[
+  {
+    "averageRevenue": {
+      "lower": 25000
+    },
+    "averageReviewCount": {
+      "lower": 50
+    },
+    "averageSales": {
+      "lower": 100
+    },
+    "email": "subs@coral8.co",
+    "marketplace": "US",
+    "objectID": "kN1G4gsZEh",
+    "preset": "ESV 5K, Rating 4.0",
+    "reviewRating": {
+      "upper": 4
+    },
+    "rootCategories": [
+      "Arts, Crafts & Sewing",
+      "Automotive",
+      "Baby",
+      "Beauty & Personal Care",
+      "Camera & Photo",
+      "Computers & Accessories",
+      "Health & Household",
+      "Home & Kitchen",
+      "Industrial & Scientific",
+      "Kitchen & Dining",
+      "Musical Instruments",
+      "Office Products",
+      "Patio, Lawn & Garden",
+      "Pet Supplies",
+      "Sports & Outdoors",
+      "Tools & Home Improvement",
+      "Grocery & Gourmet Food",
+      "Appliances",
+      "Electronics"
+    ],
+    "salesPattern": "",
+    "searchVolumeExact": {
+      "lower": 5000,
+      "upper": 10000
+    },
+    "shipSize": ""
+  },
+  {
+    "averageRevenue": {
+      "lower": 25000
+    },
+    "averageReviewCount": {
+      "lower": 50
+    },
+    "averageSales": {
+      "lower": 100
+    },
+    "email": "subs@coral8.co",
+    "marketplace": "US",
+    "objectID": "kN1G4gsZEh",
+    "preset": "ESV 10K, Rating 4.0",
+    "reviewRating": {
+      "upper": 4
+    },
+    "rootCategories": [
+      "Arts, Crafts & Sewing",
+      "Automotive",
+      "Baby",
+      "Beauty & Personal Care",
+      "Camera & Photo",
+      "Computers & Accessories",
+      "Health & Household",
+      "Home & Kitchen",
+      "Industrial & Scientific",
+      "Kitchen & Dining",
+      "Musical Instruments",
+      "Office Products",
+      "Patio, Lawn & Garden",
+      "Pet Supplies",
+      "Sports & Outdoors",
+      "Tools & Home Improvement",
+      "Grocery & Gourmet Food",
+      "Appliances",
+      "Electronics"
+    ],
+    "salesPattern": "",
+    "searchVolumeExact": {
+      "lower": 10000,
+      "upper": 20000
+    },
+    "shipSize": ""
+  },
+  {
+    "averageRevenue": {
+      "lower": 25000
+    },
+    "averageReviewCount": {
+      "lower": 50
+    },
+    "averageSales": {
+      "lower": 100
+    },
+    "email": "subs@coral8.co",
+    "marketplace": "US",
+    "objectID": "kN1G4gsZEh",
+    "preset": "ESV 20K, Rating 4.0",
+    "reviewRating": {
+      "upper": 4
+    },
+    "rootCategories": [
+      "Arts, Crafts & Sewing",
+      "Automotive",
+      "Baby",
+      "Beauty & Personal Care",
+      "Camera & Photo",
+      "Computers & Accessories",
+      "Health & Household",
+      "Home & Kitchen",
+      "Industrial & Scientific",
+      "Kitchen & Dining",
+      "Musical Instruments",
+      "Office Products",
+      "Patio, Lawn & Garden",
+      "Pet Supplies",
+      "Sports & Outdoors",
+      "Tools & Home Improvement",
+      "Grocery & Gourmet Food",
+      "Appliances",
+      "Electronics"
+    ],
+    "salesPattern": "",
+    "searchVolumeExact": {
+      "lower": 20000
+    },
+    "shipSize": ""
+  }
+]

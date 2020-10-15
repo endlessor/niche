@@ -1,0 +1,95 @@
+package scrapers
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	productdiscoverysvc "nicheanalysis/gen/product_discovery_svc"
+	"os"
+)
+
+var _ = log.Print
+var _ = bytes.HasPrefix
+var _ = http.Get
+var _ = ioutil.WriteFile
+
+// PdPayload for requesting product discovery info
+type PdPayload struct {
+	AverageReviewCount *productdiscoverysvc.ApplicationViralMinMax `json:"averageReviewCount"`
+	AverageRevenue     *productdiscoverysvc.ApplicationViralMinMax `json:"averageRevenue"`
+	AverageSales       *productdiscoverysvc.ApplicationViralMinMax `json:"averageSales"`
+	ReviewRating       *productdiscoverysvc.ApplicationViralMinMax `json:"reviewRating"`
+	ContinuationToken  *string                                     `json:"continuationToken"`
+	RootCategories     []string                                    `json:"rootCategories"`
+	MarketPlace        string                                      `json:"marketplace"`
+	Email              string                                      `json:"email"`
+	ObjectID           string                                      `json:"objectID"`
+	SalesPattern       string                                      `json:"salesPattern"`
+	ShipSize           string                                      `json:"shipSize"`
+}
+
+// // Throttle delays given random time
+// func Throttle(delay []int) {
+// 	rand.Seed(time.Now().Unix())
+// 	min, max := delay[0], delay[1]
+// 	dur := rand.Intn(max-min) + min
+// 	time.Sleep(time.Duration(dur) * time.Second)
+// }
+
+// ProductDiscovery scrapes product discovery data with preset
+func ProductDiscovery(preset *productdiscoverysvc.ViralPresetmedia, delay []int) (productdiscoverysvc.ViralDiscoverydataCollection, error) {
+	var collection productdiscoverysvc.ViralDiscoverydataCollection
+	pst := preset
+	for {
+		pd := &PdPayload{
+			AverageReviewCount: pst.AverageReviewCount,
+			AverageRevenue:     pst.AverageRevenue,
+			AverageSales:       pst.AverageSales,
+			ReviewRating:       pst.ReviewRating,
+			RootCategories:     pst.RootCategories,
+			ContinuationToken:  pst.ContinuationToken,
+			MarketPlace:        "US",
+			Email:              os.Getenv("VIRAL_LAUNCH_EMAIL"),
+			ObjectID:           os.Getenv("VIRAL_LAUNCH_ID"),
+			ShipSize:           "",
+			SalesPattern:       "",
+		}
+		fmt.Println(pst.Preset, *pst.AverageRevenue.Lower, "-- starting")
+
+		payload, _ := json.Marshal(pd)
+		url := "https://viral-launch.com/sellers/assets/php/keyword-filter.php"
+		req, _ := http.NewRequest("POST", url, bytes.NewBuffer(payload))
+		req.Header.Set("Content-Type", "application/json")
+
+		client := &http.Client{}
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Print("Error scraping product discovery: ", err)
+			return collection, err
+		}
+		defer resp.Body.Close()
+
+		body, _ := ioutil.ReadAll(resp.Body)
+		current := productdiscoverysvc.ViralDiscoverydata{}
+		err = json.Unmarshal(body, &current)
+		if err != nil {
+			return collection, err
+		}
+
+		for i := range current.Data {
+			current.Data[i].PresetRevenue = int64(*pst.AverageRevenue.Lower)
+			current.Data[i].Preset = pst.Preset
+		}
+
+		collection = append(collection, &current)
+		pst.ContinuationToken = current.ContinuationToken
+		if current.ContinuationToken == nil {
+			break
+		}
+	}
+
+	return collection, nil
+}
