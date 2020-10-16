@@ -1,3 +1,4 @@
 .idea/
 request.txt
 config.json
+*.log

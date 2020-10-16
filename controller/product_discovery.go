@@ -29,11 +29,10 @@ func PdScrape(delay []int, revMin float64, revMax float64, preset *dal.AppPreset
 	return nil
 }
 
-// // PdList lists data for a preset
-// func PdList(revenue *int64, preset string) (productdiscoverysvc.ViralDiscoverydataCollection, error) {
-// 	return dal.ListDiscoveryData(preset)
-
-// }
+// ListAllProductDiscovery get all product discovery data
+func ListAllProductDiscovery() ([]dal.ProductDiscovery, error) {
+	return dal.ListAllProductDiscovery()
+}
 
 // // PdShowPreset shows a single preset
 // func PdShowPreset(preset string) (*productdiscoverysvc.ViralPresetmedia, error) {

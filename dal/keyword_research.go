@@ -1,11 +1,7 @@
 package dal
 
 import (
-	"encoding/json"
-
 	"github.com/lib/pq"
-
-	keywordresearchsvc "nicheanal.com/gen/keyword_research_svc"
 )
 
 // KeywordData is database model for keyword research result
@@ -20,24 +16,17 @@ type KeywordData struct {
 	VolumeEstimate     float64
 	VolumeEstimatedAt  string
 	Score              float64
+	OriginPhrase       string
 }
 
 // KeywordResearchSave create new keywork reseach scrape result searched
-func KeywordResearchSave(res keywordresearchsvc.ViralKeyworddataCollection) error {
-	for _, v := range res {
-		k := KeywordData{}
-
+func KeywordResearchSave(kds []KeywordData) error {
+	for _, v := range kds {
 		err := db.Where("phrase=?", v.Phrase).Delete(&KeywordData{}).Error
 		if err != nil {
 			return err
 		}
-
-		b, _ := json.Marshal(v)
-		err = json.Unmarshal(b, &k)
-		if err != nil {
-			return err
-		}
-		err = db.Create(&k).Error
+		err = db.Create(&v).Error
 		if err != nil {
 			return err
 		}
@@ -46,14 +35,8 @@ func KeywordResearchSave(res keywordresearchsvc.ViralKeyworddataCollection) erro
 }
 
 // KeywordResearchGet get all keyword data from phrase
-func KeywordResearchGet(phrase string) (keywordresearchsvc.ViralKeyworddataCollection, error) {
-	res := keywordresearchsvc.ViralKeyworddataCollection{}
+func KeywordResearchGet(phrase string) ([]KeywordData, error) {
 	kds := []KeywordData{}
 	err := db.Where("phrase=?", phrase).Find(&kds).Error
-	if err != nil {
-		return res, err
-	}
-	b, _ := json.Marshal(kds)
-	err = json.Unmarshal(b, &res)
-	return res, err
+	return kds, err
 }

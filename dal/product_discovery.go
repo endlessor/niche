@@ -45,3 +45,10 @@ func ListDiscoveryData(preset string) ([]ProductDiscovery, error) {
 	err := db.Where("preset=?", preset).Find(&pds).Error
 	return pds, err
 }
+
+// ListAllProductDiscovery returns all product discovery
+func ListAllProductDiscovery() ([]ProductDiscovery, error) {
+	pds := []ProductDiscovery{}
+	err := db.Find(&pds).Error
+	return pds, err
+}
