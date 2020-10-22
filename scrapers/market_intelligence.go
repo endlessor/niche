@@ -8,10 +8,9 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"nicheanal.com/config"
 	"nicheanal.com/dal"
-	marketintelligencesvc "nicheanal.com/gen/market_intelligence_svc"
-	"os"
-	"time"
 )
 
 // Data for byte record
@@ -34,13 +33,13 @@ type AsinResp struct {
 }
 
 // MarketIntelligence scrapes market intelligence info from viral-launch-market site
-func MarketIntelligence(phrase string, logger *log.Logger) (*marketintelligencesvc.ViralMarketdata, error) {
+func MarketIntelligence(phrase string, logger *log.Logger) ([]dal.MarketArgument, error) {
 	p := &AsinPayload{
 		MarketPlace: "US",
 		Phrase:      phrase,
-		By:          os.Getenv("VIRAL_LAUNCH_EMAIL"),
+		By:          config.Cfg.ViralLaunchEmail,
 		Source:      "viral-launch.com",
-		ObjectID:    os.Getenv("VIRAL_LAUNCH_ID"),
+		ObjectID:    config.Cfg.ViralLaunchID,
 	}
 	asins, err := p.getAsins()
 	if err != nil {
@@ -78,16 +77,13 @@ func (p *AsinPayload) getAsins() ([]string, error) {
 	return asd.PrimaryAsins, nil
 }
 
-func (p *AsinPayload) getMarketData(asins []string, logger *log.Logger) (*marketintelligencesvc.ViralMarketdata, error) {
-	vmd := &marketintelligencesvc.ViralMarketdata{}
+func (p *AsinPayload) getMarketData(asins []string, logger *log.Logger) ([]dal.MarketArgument, error) {
+	vmd := []dal.MarketArgument{}
 	payload, _ := json.Marshal(p)
 	client := &http.Client{}
 
 	for i := 0; i < len(asins); i++ {
-		if dal.CheckAsinExist(asins[i]) {
-			continue
-		}
-		arg := &marketintelligencesvc.ApplicationViralMarketArguments{}
+		arg := dal.MarketArgument{}
 		req, err := http.NewRequest("POST", fmt.Sprintf("%s?asin=%s", searchListingURL, asins[i]), bytes.NewBuffer(payload))
 		if err != nil {
 			logger.Println(err)
@@ -107,10 +103,8 @@ func (p *AsinPayload) getMarketData(asins []string, logger *log.Logger) (*market
 			logger.Println(err)
 			continue
 		}
-		vmd.Data = append(vmd.Data, arg)
-
-		dal.SaveAsin(asins[i])
+		vmd = append(vmd, arg)
 	}
-	time.Sleep(time.Duration(300) * time.Second)
+	// time.Sleep(time.Duration(10) * time.Second)
 	return vmd, nil
 }

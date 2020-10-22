@@ -5,6 +5,7 @@ import (
 	"github.com/gocolly/colly/extensions"
 
 	"encoding/json"
+
 	"fmt"
 	"log"
 	"net/url"

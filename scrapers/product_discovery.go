@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 
 	"nicheanal.com/config"
 
@@ -30,7 +31,11 @@ type PdPayload struct {
 	AverageRevenue       *dal.AppMinMax `json:"averageRevenue"`
 	AverageSales         *dal.AppMinMax `json:"averageSales"`
 	ReviewRating         *dal.AppMinMax `json:"reviewRating"`
+	ReviewRate           *dal.AppMinMax `json:"reviewRate"`
+	SalesToReviews       *dal.AppMinMax `json:"salesToReviews"`
 	SearchVolumeEstimate *dal.AppMinMax `json:"searchVolumeEstimate"`
+	AveragePrice         *dal.AppMinMax `json:"averagePrice"`
+	ProfitMargin         *dal.AppMinMax `json:"profitMargin"`
 	ContinuationToken    *string        `json:"continuationToken"`
 	RootCategories       []string       `json:"rootCategories"`
 	MarketPlace          string         `json:"marketplace"`
@@ -52,6 +57,10 @@ func ScrapeProductDiscovery(pst *dal.AppPreset, delay []int) ([]ViralDiscoveryda
 			SearchVolumeEstimate: pst.SearchVolumeEstimate,
 			RootCategories:       pst.RootCategories,
 			ContinuationToken:    pst.ContinuationToken,
+			ReviewRate:           pst.ReviewRate,
+			SalesToReviews:       pst.SalesToReviews,
+			AveragePrice:         pst.AveragePrice,
+			ProfitMargin:         pst.ProfitMargin,
 			MarketPlace:          "US",
 			Email:                config.Cfg.ViralLaunchEmail,
 			ObjectID:             config.Cfg.ViralLaunchID,
@@ -90,6 +99,7 @@ func ScrapeProductDiscovery(pst *dal.AppPreset, delay []int) ([]ViralDiscoveryda
 		if current.ContinuationToken == nil {
 			break
 		}
+		time.Sleep(300 * time.Millisecond)
 	}
 
 	return collection, nil

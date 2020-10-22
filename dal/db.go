@@ -29,6 +29,6 @@ func LoadDB() {
 	db.AutoMigrate(
 		&Preset{},
 		&ProductDiscovery{},
-		&KeywordData{},
+		&MarketArgument{},
 	)
 }

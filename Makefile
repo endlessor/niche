@@ -15,3 +15,7 @@ build_for_linux:
 seeder:
 	@echo "Seeding get started..."
 	@cd seed && ./seed
+
+python_seeder:
+	@echo "Seeding python aws..."
+	@cd python && python3 py_aws.py

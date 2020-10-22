@@ -22,10 +22,11 @@ from pyvirtualdisplay import Display
 class AmazonSearchResultParser:
 
     def __init__(self):
-        # db = dataset.connect('sqlite:///amazon_search_result.db')
         db = dataset.connect('postgresql://postgres:postgres@localhost:5432/nichedb')
-        # db = dataset.connect('mysql://user:password@localhost/mydatabase')
-        self.table = db['amazon_search_result']
+        self.amazon_table = db['amazon_py']
+        self.phrase_table = db['product_discoveries']
+        self.mi_table = db['market_arguments']
+        self.asin_table = db['asins']
 
         SMARTPROXY_USER = 'spbb746f3f'
         SMARTPROXY_PASS = '9OTjKygF09Db'
@@ -36,48 +37,47 @@ class AmazonSearchResultParser:
         }
 
     def init_driver(self):
-        print("1")
         self.create_auth_zip()
-        print("2")
-
         chrome_options = ChromeOptions()
         chrome_options.add_extension('./DS Amazon Quick View.crx')
-        print("3")
-
-        # chrome_options.add_argument("user-data-dir=extentions")
         pluginfile = 'proxy_auth_plugin.zip'
-
         chrome_options.add_extension(pluginfile)
-        print("4")
-
         path_to_chromedriver = './chromedriver'
         driver = webdriver.Chrome(options=chrome_options, executable_path=path_to_chromedriver)
-        print("5")
 
         return driver
 
-    def parse_keywords(self, keywords):
+    def parse_keywords(self):
         try:
             display = Display(visible=0, size=(800, 600))
             display.start()
             driver = self.init_driver()
 
-            for keyword in keywords:
-                print(f'keyword = {keyword}')
-                self.parse(keyword, driver)
+            pds = self.phrase_table.all()
+
+            for pd in pds:
+                keyword = pd['phrase']
+                preset = pd['preset']
+                print(f'keyword = {keyword}, preset = {preset}')
+                self.parse(driver, keyword, preset)
         except Exception as e:
             print(f'ERROR - {repr(e)}')
         finally:
             driver.quit()
             display.stop()
 
-    def parse(self, keyword, driver):
+    def parse(self, driver, keyword, preset):
         try:
+            scraping_date = datetime.now()
+            db_date = str(scraping_date)[0:7]
+            ex_phrase = self.asin_table.find_one(date=db_date, phrase=keyword)
+            if ex_phrase:
+                print("existing keyword:", keyword)
+                return
+
             driver.get(f'https://www.amazon.com/s?k={keyword}')
             time.sleep(2)
-            print(f'get - https://www.amazon.com/s?k={keyword}')
             SCROLL_PAUSE_TIME = 3
-
             last_height = driver.execute_script("return document.body.scrollHeight")
 
             while True:
@@ -93,7 +93,6 @@ class AmazonSearchResultParser:
             time.sleep(2)
 
             response = Selector(text=driver.page_source)
-            scraping_date = datetime.now()
 
             rows = []
 
@@ -117,7 +116,8 @@ class AmazonSearchResultParser:
 
                 amazon_item = {
                     'scraping_date': str(scraping_date),
-                    'query_id': keyword,
+                    'phrase': keyword,
+                    'preset': preset,
                     'asin': asin,
                     'product_title': product_title,
                     'rating_count': rating_count,
@@ -127,12 +127,22 @@ class AmazonSearchResultParser:
                     'category': category.strip() if category else category,
                     'sales': None
                 }
-                if rank and category:
-                    amazon_item['sales'] = self.get_sales(rank, category)
+                # if rank and category and len(category) > 0:
+                #     sales = self.get_sales(rank, category)
+                #     if not str(sales).isdigit():
+                #         sales = None
+                #     amazon_item['sales'] = sales
 
                 rows.append(amazon_item)
-                self.table.insert(amazon_item)
-                print(amazon_item)
+                self.amazon_table.insert(amazon_item)
+                print("asin:", asin)
+                # self.get_mi_asin(preset, keyword, asin)
+
+            asin_data = {
+                'date': db_date,
+                'phrase': keyword
+            }
+            self.asin_table.insert(asin_data)
 
         except Exception as e:
             print(f'ERROR - {repr(e)}')
@@ -238,15 +248,94 @@ class AmazonSearchResultParser:
                 zp.writestr("manifest.json", manifest_json)
                 zp.writestr("background.js", background_js)
 
+    def get_mi_asin(self, preset, keyword, asin):
+        searchListingURL = "https://viral-launch.com/sellers/assets/php/market-intelligence/search-listing.php"
+        headers = {
+            "Content-Type": "application/json",
+        }
+        params = (
+            ("asin", asin),
+        )
+        body = {
+            'by': "subs@coral8.co",
+            'marketplace': "US",
+            'objectId': "kN1G4gsZEh",
+            'phrase': keyword,
+            'source': "viral-launch.com"
+        }
+        try:
+            response = requests.post(
+                searchListingURL,
+                json=body,
+                headers=headers,
+                params=params)
+
+            result = response.json()
+
+            if not result.get('title'):
+                return
+            mi_item = {
+                'phrase': keyword,
+                'preset': preset,
+                'asin': asin,
+                'at': result.get('at', ""),
+                'title': result.get('title', ""),
+                'description': result.get('description', ""),
+                'price': result.get('price', 0),
+                'parent_asin': result.get('parentASIN', ""),
+                'brand': result.get('brand', ""),
+                'bsr': result.get('bsr', 0),
+                'category': result.get('category', ""),
+                'category_id': result.get('categoryID', 0),
+                'categories': result.get('categories', []),
+                'features': result.get('features', []),                     
+                'image_urls': result.get('imageUrls', []),                    
+                'net_profit': result.get('netProfit', 0),                    
+                'revenue': result.get('revenue', 0),                      
+                'review_count': result.get('reviewCount', 0),        
+                'review_rate': result.get('reviewRate', 0),                   
+                'review_rating': result.get('reviewRating', 0),      
+                'price_amazon': result.get('priceAmazon', 0),
+                'price_new': result.get('priceNew', 0),
+                'product_group': result.get('productGroup', ""),
+                'profit_margin': result.get('profitMargin', 0),                 
+                'sales': result.get('sales', 0),              
+                'sales_last_year': result.get('salesLastYear', 0),      
+                'sales_to_reviews': result.get('salesToReviews', 0),               
+                'seller_count': result.get('sellerCount', 0),        
+                'unit_margin': result.get('unitMargin', 0),                   
+                'star_rating': result.get('starRating', 0),                   
+                'best_sales_period': result.get('bestSalesPeriod', ""),              
+                'is_name_brand': result.get('isNameBrand', False),                  
+                'price_change_last_ninety_days': result.get('priceChangeLastNinetyDays', 0),    
+                'review_count_change_monthly': result.get('reviewCountChangeMonthly', 0),     
+                'sales_change_last_ninety_days': result.get('salesChangeLastNinetyDays', 0),    
+                'sales_pattern': result.get('salesPattern', ""),
+                'sales_year_over_year': result.get('salesYearOverYear', 0),            
+                'initial_cost': result.get('initialCost', 0),                  
+                'initial_net_profit': result.get('initialNetProfit', 0),             
+                'initial_organic_sales_projection': result.get('initialOrganicSalesProjection', 0),
+                'initial_units_to_order': result.get('initialUnitsToOrder', 0),
+                'ongoing_organic_sales_projection': result.get('ongoingOrganicSalesProjection', 0),
+                'ongoing_units_to_order': result.get('ongoingUnitsToOrder', 0),
+                'promotion_duration': result.get('promotionDuration', 0),  
+                'promotion_units_daily': result.get('promotionUnitsDaily', 0),
+                'fulfillment': result.get('fulfillment', ""), 
+                'promotion_units_total': result.get('promotionUnitsTotal', 0),
+                'is_variation_with_shared_bsr': result.get('isVariationWithSharedBSR', False),     
+                'offer_count_new': result.get('offerCountNew', 0),      
+                'offer_count_used': result.get('offerCountUsed', 0),     
+                'package_height': result.get('packageHeight', 0),                
+                'package_length': result.get('packageLength', 0),                
+                'package_quantity': result.get('packageQuantity', 0),
+                'package_weight': result.get('packageWeight', 0),
+                'package_width': result.get('packageWidth', 0),
+            }
+            self.mi_table.insert(mi_item)
+        except Exception as e:
+            print(f'Cant get mi, due to error {repr(e)}')
+        return 
 
 if __name__ == '__main__':
-    # ap = argparse.ArgumentParser()
-
-    # ap.add_argument("-k", "--keyword", required=True, help='Keyword to search on amazon, text should be "here inside double quotes" ')
-    # args = vars(ap.parse_args())
-
     parser = AmazonSearchResultParser()
-    parser.parse_keywords(['ps4', 'ps4 game'])
-    # rows = []
-    # for row in parser.parse(args['keyword']):
-    #     print(row)
+    parser.parse_keywords()

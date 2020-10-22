@@ -22,7 +22,7 @@ func main() {
 	}
 	defer f.Close()
 
-	logger := log.New(f, "nicheanalysis", log.LstdFlags)
+	// logger := log.New(f, "nicheanalysis", log.LstdFlags)
 
 	// logger.Println("Starting db seeding...")
 	// seedPreset(logger)
@@ -32,9 +32,13 @@ func main() {
 	// scrapProductDiscovery(logger)
 	// logger.Println("Complete scraping product discovery")
 
-	logger.Println("Starting scraping amazon keywords...")
-	scrapKeywords(logger)
-	logger.Println("Complete scraping amazon keywords")
+	// logger.Println("Starting scraping amazon keywords...")
+	// scrapKeywords(logger)
+	// logger.Println("Complete scraping amazon keywords")
+
+	// logger.Println("Starting scraping amazon market intelligent...")
+	// scrapMarketIntelligent(logger)
+	// logger.Println("Complete scraping amazon market intelligent")
 
 	// if err != nil {
 	// 	params := &logger.LogParams{}
@@ -111,65 +115,20 @@ func scrapKeywords(logger *log.Logger) {
 			continue
 		}
 	}
-	// for _, pm := range pl {
-	// 	phl, err := dal.ListPhraseDataByPhrase(pm.Preset)
-	// 	if err != nil {
-	// 		logger.Println(err)
-	// 		return
-	// 	}
-	// 	for i, phm := range phl {
-	// 		phrase := phm.Phrase
-	// 		if !dal.CheckPhraseExist(phrase) {
-	// 			if phrase != "" {
-	// 				continue
-	// 			}
-	// 			_, err = controller.AmazonScrape(phrase)
-	// 			if err != nil {
-	// 				logger.Println(err)
-	// 				continue
-	// 			}
-	// 			logger.Println("searching items on", i)
-	// 			_, err = controller.MIScrape(phrase, logger)
-	// 			if err != nil {
-	// 				logger.Println(err)
-	// 				continue
-	// 			}
-	// 			_, err = controller.KeywordResearchSave(phrase)
-	// 			if err != nil {
-	// 				logger.Println(err)
-	// 				continue
-	// 			}
-	// 			err = dal.SavePhraseModel(phrase)
-	// 			if err != nil {
-	// 				logger.Println(err)
-	// 				continue
-	// 			}
-	// 		}
-	// 		err = controller.SpPhraseSave(pm.Preset, phrase)
-	// 		if err != nil {
-	// 			logger.Println(err)
-	// 			continue
-	// 		}
-	// 	}
-	// }
 }
 
-// // CleanPhraseModel cleans phrase modal table
-// func CleanPhraseModel(logger *log.Logger) {
-// 	pds, err := dal.GetAllMiData()
-// 	if err != nil {
-// 		logger.Panic(err)
-// 	}
-// 	for _, v := range pds {
-// 		phrase := v.Phrase
-// 		if dal.CheckPhraseExist(phrase) {
-// 			continue
-// 		}
-// 		fmt.Println("save--", phrase)
-// 		err = dal.SavePhraseModel(phrase)
-// 		if err != nil {
-// 			logger.Println(err)
-// 			continue
-// 		}
-// 	}
-// }
+func scrapMarketIntelligent(logger *log.Logger) {
+	apds, err := controller.ListAllProductDiscovery()
+	if err != nil {
+		logger.Println(err)
+		return
+	}
+	for _, pd := range apds {
+		phrase := pd.Phrase
+		err = controller.MIScrape(phrase, logger)
+		if err != nil {
+			logger.Println(err)
+			continue
+		}
+	}
+}
